@@ -9,8 +9,5 @@
         <module name="maturita" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="maturita" target="16" />
-    </bytecodeTargetLevel>
   </component>
 </project>

@@ -14,8 +14,10 @@ import javafx.scene.input.KeyCode;
 public class MoveTheBoxesApp extends Application {
 
     Player player;
-    Box[] boxes;
-    BoxEndPosition[] endPositions;
+    Box box1;
+    Box box2;
+    BoxEndPosition end1;
+    BoxEndPosition end2;
     Box pushedBox = null;
     int windowWidth = 750;
     int windowHeight = 750;
@@ -26,8 +28,10 @@ public class MoveTheBoxesApp extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         player = new Player(100, 100, 30);
-        boxes = new Box[]{new Box(500, 200, 30), new Box(400, 200, 30)};
-        endPositions = new BoxEndPosition[]{new BoxEndPosition(500, 400), new BoxEndPosition(650, 400)};
+        box1 = new Box(500, 200, 30);
+        box2 = new Box(400, 200, 30);
+        end1 = new BoxEndPosition(500, 400);
+        end2 = new BoxEndPosition(650, 400);
 
         canvas.setOnKeyPressed(this::handleKeyPress);
         canvas.setOnKeyReleased(this::handleKeyRelease);
@@ -41,7 +45,6 @@ public class MoveTheBoxesApp extends Application {
         }.start();
 
         Group root = new Group(canvas);
-
         Scene scene = new Scene(root, windowWidth, windowHeight);
         primaryStage.setTitle("Move the Boxes Game");
         primaryStage.setScene(scene);
@@ -51,11 +54,14 @@ public class MoveTheBoxesApp extends Application {
     void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.W) {
             player.moveUp();
-        } else if (event.getCode() == KeyCode.A) {
+        }
+        if (event.getCode() == KeyCode.A) {
             player.moveLeft();
-        } else if (event.getCode() == KeyCode.S) {
+        }
+        if (event.getCode() == KeyCode.S) {
             player.moveDown();
-        } else if (event.getCode() == KeyCode.D) {
+        }
+        if (event.getCode() == KeyCode.D) {
             player.moveRight();
         }
     }
@@ -63,11 +69,14 @@ public class MoveTheBoxesApp extends Application {
     void handleKeyRelease(KeyEvent event) {
         if (event.getCode() == KeyCode.W) {
             player.stopMoveUp();
-        } else if (event.getCode() == KeyCode.A) {
+        }
+        if (event.getCode() == KeyCode.A) {
             player.stopMoveLeft();
-        } else if (event.getCode() == KeyCode.S) {
+        }
+        if (event.getCode() == KeyCode.S) {
             player.stopMoveDown();
-        } else if (event.getCode() == KeyCode.D) {
+        }
+        if (event.getCode() == KeyCode.D) {
             player.stopMoveRight();
         }
     }
@@ -79,20 +88,16 @@ public class MoveTheBoxesApp extends Application {
         player.updatePosition();
         player.draw(gc);
 
-        for (int i = 0; i < boxes.length; i++) {
-            boxes[i].draw(gc);
-        }
-
-        for (int i = 0; i < endPositions.length; i++) {
-            endPositions[i].draw(gc);
-        }
+        box1.draw(gc);
+        box2.draw(gc);
+        end1.draw(gc);
+        end2.draw(gc);
 
         if (pushedBox == null) {
-            for (int i = 0; i < boxes.length; i++) {
-                if (player.isInCollision(boxes[i])) {
-                    pushedBox = boxes[i];
-                    break;
-                }
+            if (player.isInCollision(box1)) {
+                pushedBox = box1;
+            } else if (player.isInCollision(box2)) {
+                pushedBox = box2;
             }
         }
 
@@ -105,16 +110,12 @@ public class MoveTheBoxesApp extends Application {
 
             if (newBoxX >= 0 && newBoxX <= windowWidth - pushedBox.getSize() &&
                     newBoxY >= 0 && newBoxY <= windowHeight - pushedBox.getSize()) {
-
                 pushedBox.move(dx, dy);
-
-                if (player.isInCollision(pushedBox) == false) {
-                    //pushedBox.move(dx, dy);
+                if (!player.isInCollision(pushedBox)) {
                     pushedBox = null;
                 }
             } else {
-
-               pushedBox = null;
+                pushedBox = null;
             }
         }
 
@@ -122,31 +123,33 @@ public class MoveTheBoxesApp extends Application {
     }
 
     void checkWinCondition(GraphicsContext gc) {
-        boolean allInPosition = true;
-        for (int i = 0; i < boxes.length; i++) {
-            boolean inPosition = false;
-            for (int j = 0; j < endPositions.length; j++) {
-                if (endPositions[j].isInEndPosition(boxes[i])) {
-                    inPosition = true;
-                    boxes[i].setInPosition(true);
-                    break;
-                }
-            }
+        boolean box1InPlace = end1.isInEndPosition(box1) || end2.isInEndPosition(box1);
+        boolean box2InPlace = end1.isInEndPosition(box2) || end2.isInEndPosition(box2);
 
-            if (inPosition == false) {
-                allInPosition = false;
-                boxes[i].setInPosition(false);
-            }
+        if (box1InPlace) {
+            box1.setInPosition(true);
+        } else {
+            box1.setInPosition(false);
         }
 
-        if (allInPosition) {
+        if (box2InPlace) {
+            box2.setInPosition(true);
+        } else {
+            box2.setInPosition(false);
+        }
+
+        if (box1InPlace && box2InPlace) {
             System.out.println("Nice job!");
         }
-        for (int i = 0; i < boxes.length; i++) {
-            boxes[i].draw(gc);
-            if (boxes[i].isInPosition()) {
-                boxes[i].drawInPosition(gc);
-            }
+
+        box1.draw(gc);
+        box2.draw(gc);
+
+        if (box1.isInPosition()) {
+            box1.drawInPosition(gc);
+        }
+        if (box2.isInPosition()) {
+            box2.drawInPosition(gc);
         }
     }
 
